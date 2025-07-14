@@ -5,7 +5,7 @@ const blobSchema = new mongoose.Schema(
     payload: { type: Schema.Types.Mixed, require: true },
   },
   {
-    collation: "blobs",
+    collaction: "blobs",
     timestamps: { createdAt: true, updatedAt: true },
   }
 );

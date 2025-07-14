@@ -19,7 +19,7 @@ testRouter.post("/", async (req, res) => {
 testRouter.get('/', async (req, res) => {
   const [ sqlData, mongoData ] = await Promise.all([
     record.findAll(),
-    Blob.find().lean(),
+    BlobSchema.find().lean(),
   ]);
   res.json({ sql: sqlData, mongo: mongoData });
 });
