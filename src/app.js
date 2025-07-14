@@ -2,15 +2,18 @@ import express from "express";
 import { PORT } from "./config/env.js";
 import connectDB from "./database/mongodb.config.js";
 import sequelize from "./database/sqldb.config.js";
+import testRouter from "./routes/data.routes.js";
 
 const app = express();
 app.use(express.json());
+
+app.use("/api/v1/test", testRouter);
 
 const startServer = async () => {
   try {
     await connectDB();
 
-    sequelize.sync();
+    sequelize.sync({ force: true });
 
     app.listen(PORT || 4000, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
