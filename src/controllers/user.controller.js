@@ -1,8 +1,10 @@
+import jwt from "jsonwebtoken";
 import sequelize from "../database/sqldb.config.js";
 import User from "../models/sql/sql.user.js";
 import bcrypt from "bcryptjs";
+import { JWT_EXPIRY, JWT_SECRET } from "../config/env.js";
 
-const registerUser = async (req, res) => {
+export const registerUser = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
     const { email, password, name } = req.body;
@@ -52,4 +54,47 @@ const registerUser = async (req, res) => {
   }
 };
 
-export default registerUser;
+export const userLogin = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        message: "Can't find user | Invalid email or password!",
+      });
+    }
+
+    const decryptPassword = await bcrypt.compare(password, user.passwordHash);
+    if (!decryptPassword) {
+      return res.status(401).json({
+        status: "error",
+        message: "Invalid email or password.",
+      });
+    }
+
+    //generating JWT
+
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+      expiresIn: JWT_EXPIRY,
+    });
+    return res.status(200).json({
+      status: "success",
+      message: "Login successful.",
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    });
+  } catch (error) {
+    console.error('Login Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error during login.',
+    });
+  }
+};

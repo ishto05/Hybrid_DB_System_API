@@ -7,7 +7,7 @@ const sequelize = new Sequelize(SQL.DATABASE_SQL, SQL.USER_SQL, SQL.PASSWD_SQL, 
 });
 
 sequelize.authenticate()
-  .then(() => console.log("MySQL connected.."))
-  .catch((err) => console.log("MySQL err: ", err));
+  .then(() => console.log("✅ MySQL connected.."))
+  .catch((err) => console.log("❌ MySQL err: ", err));
 
 export default sequelize;
