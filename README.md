@@ -37,24 +37,38 @@ A powerful Express.js-based API that smartly separates and manages structured an
 ## 📁 Folder Structure
 
 ```bash
-├── config
-│   └── db.js, env.js
-├── models
-│   ├── sql
-│   │   └── sql.user.js, record.model.js
-│   └── mongo
-│       └── blob.model.js
-├── controllers
-│   └── auth.controller.js, data.controller.js
-├── middleware
-│   └── auth.middleware.js
-├── routes
-│   └── auth.routes.js, data.routes.js
-├── utils
-│   └── token.js, uuid.js
-├── services
-│   └── redisClient.js
-└── server.js
+Hybrid-system-API/
+├── .env.development.local
+├── .git/
+├── .gitignore
+├── eslint.config.js
+├── node_modules/
+├── package-lock.json
+├── package.json
+├── src/
+│   ├── app.js
+│   ├── config/
+│   │   └── env.js
+│   ├── controllers/
+│   │   ├── data.controller.js
+│   │   └── user.controller.js
+│   ├── database/
+│   │   ├── mongodb.config.js
+│   │   └── sqldb.config.js
+│   ├── middleware/
+│   │   └── authguard.middleware.js
+│   ├── models/
+│   │   ├── mongo/
+│   │   │   └── mongo.record.js
+│   │   └── sql/
+│   │       ├── sql.record.js
+│   │       └── sql.user.js
+│   ├── redis/
+│   │   └── config.redis.js
+│   ├── routes/
+│   │   ├── data.routes.js
+│   │
+
 ```
 
 ---
@@ -62,8 +76,8 @@ A powerful Express.js-based API that smartly separates and manages structured an
 ## 🛠 Installation
 
 ```bash
-git clone https://github.com/ishto05/hybrid-db-api.git
-cd hybrid-db-api
+git clone https://github.com/ishto05/Hybrid_DB_System_API.git
+cd Hybrid_DB_System_API
 npm install
 ```
 
@@ -143,7 +157,6 @@ REDIS_PORT=6379
 * Add RabbitMQ queueing support
 * Integrate Elasticsearch for searching
 * Rate-limiting via Redis
-* Swagger API documentation
 
 ---
 
