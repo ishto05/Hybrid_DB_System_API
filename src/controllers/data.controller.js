@@ -1,7 +1,7 @@
 import BlobSchema from "../models/mongo/mongo.record.js";
 import record from "../models/sql/sql.record.js";
 
-const uploadData = async (req, res) => {
+export const uploadData = async (req, res) => {
   try {
     const { structured, data } = req.body;
     const userId = req.user.id; // sent by authguard
@@ -43,4 +43,27 @@ const uploadData = async (req, res) => {
   }
 };
 
-export default uploadData;
+export const getData = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    //SQL data
+    const structured = await record.findAll({ where: { userId } });
+
+    //MONGO data
+    const unstructured = await BlobSchema.find({ userId });
+
+    return res.status(200).json({
+      status: "success",
+      message: "User data retrieved successfully.",
+      structured,
+      unstructured,
+    });
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to fetch user data.",
+    });
+  }
+};

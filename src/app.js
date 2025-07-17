@@ -15,7 +15,7 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    sequelize.sync({ force: true });
+    sequelize.sync();
 
     app.listen(PORT || 4000, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
