@@ -4,6 +4,7 @@ import connectDB from "./database/mongodb.config.js";
 import sequelize from "./database/sqldb.config.js";
 import testRouter from "./routes/data.routes.js";
 import userAuthRoute from "./routes/user.auth.route.js";
+import redisClient from "./redis/config.redis.js";
 
 const app = express();
 app.use(express.json());
@@ -16,6 +17,8 @@ const startServer = async () => {
     await connectDB();
 
     sequelize.sync();
+
+    await redisClient.ping();
 
     app.listen(PORT || 4000, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
