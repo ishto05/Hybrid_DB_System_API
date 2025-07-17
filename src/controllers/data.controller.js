@@ -1,5 +1,6 @@
 import BlobSchema from "../models/mongo/mongo.record.js";
 import record from "../models/sql/sql.record.js";
+import redisClient from "../redis/config.redis.js";
 
 export const uploadData = async (req, res) => {
   try {
@@ -46,24 +47,41 @@ export const uploadData = async (req, res) => {
 export const getData = async (req, res) => {
   try {
     const userId = req.user.id;
+    //redis cache key
+    const cacheKey = `user:data:${userId}`;
 
+    // check redis
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      return res.status(200).json({
+        status: "success (from cache)",
+        ...JSON.parse(cached),
+      });
+    }
+
+    //If no cache → get from DBs
     //SQL data
     const structured = await record.findAll({ where: { userId } });
 
     //MONGO data
     const unstructured = await BlobSchema.find({ userId });
 
-    return res.status(200).json({
-      status: "success",
+    const responseData = {
       message: "User data retrieved successfully.",
       structured,
       unstructured,
+    };
+
+    // Store in Redis with TTL (5 mins)
+    await redisClient.setex(cacheKey, 50, JSON.stringify(responseData));
+
+    return res.status(200).json({
+      status: "success",
+      ...responseData,
     });
   } catch (error) {
     console.error("Error fetching user data:", error);
-    return res.status(500).json({
-      status: "error",
-      message: "Failed to fetch user data.",
-    });
+    console.error("Redis/Data error:", error);
+    return res.status(500).json({ status: "error", message: "Server error" });
   }
 };
