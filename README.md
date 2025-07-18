@@ -1,4 +1,4 @@
-Hybrid Database System API
+## Hybrid Database System API
 
 A powerful Express.js-based API that smartly separates and manages structured and unstructured data using SQL (MySQL via Sequelize) and NoSQL (MongoDB via Mongoose). It supports JWT authentication, Redis caching, and is designed for future enhancements like RabbitMQ queueing and Elasticsearch search optimization.
 
