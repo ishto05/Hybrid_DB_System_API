@@ -160,4 +160,7 @@ REDIS_PORT=6379
 
 ---
 
+## Note
+* Feedback on this project is highly appreciated as I strive for industry-level quality.
+
 [MIT](LICENSE)
