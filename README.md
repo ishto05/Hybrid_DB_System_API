@@ -14,23 +14,29 @@ A powerful Express.js-based API that smartly separates and manages structured an
   * Structured data (e.g., finance records) → MySQL (via Sequelize)
   * Unstructured data (e.g., logs, feedback) → MongoDB (via Mongoose)
 
+* **Redis**: Cache frequently accessed data
+
+* **RabbitMQ Integration**:
+  * Asynchronously offload data processing to queues
+  * Consumer/producer architecture with routing keys
+  * Direct exchange support
+
 ### 🧠 Additional Features (Planned)
 
-1. Redis: Cache frequently accessed data
-2. RabbitMQ: Queue heavy/async operations
-3. Elasticsearch: Improve full-text search on blob data
+1. Elasticsearch: Improve full-text search on blob data
 
 ---
 
 ## 🏗 Tech Stack
 
-* Backend: Node.js, Express.js
-* Structured DB: MySQL + Sequelize
-* Unstructured DB: MongoDB + Mongoose
-* Auth: JWT (access & refresh tokens)
-* Caching: Redis (ioredis)
-* Queueing (Planned): RabbitMQ
-* Search (Planned): Elasticsearch
+**Backend**: Node.js, Express.js
+**Structured DB**: MySQL + Sequelize
+**Unstructured DB**: MongoDB + Mongoose
+**Auth**: JWT (access & refresh tokens)
+**Queueing**: RabbitMQ (Direct Exchange with routing keys, Setup by DOCKER)
+**Caching**: Redis (ioredis)
+**Search (Planned)**: Elasticsearch
+
 
 ---
 
@@ -93,6 +99,9 @@ JWT_SECRET=your_jwt_secret
 REFRESH_TOKEN_SECRET=your_refresh_secret
 REDIS_HOST=localhost
 REDIS_PORT=6379
+RABBITMQ_URL=amqp://localhost
+RABBITMQ_EXCHANGE=app_direct
+RABBITMQ_EXCHANGE_TYPE=direct
 ```
 
 ---
@@ -143,7 +152,51 @@ REDIS_PORT=6379
   user:data:USR_xxx-xxx-xxx
   ```
 
+### ⚙️ RabbitMQ Flow
+* Producer sends data using publishToQueue(routingKey, payload)
+
+* routingKey determines where the data goes (sql_save or mongo_save)
+* 
+* Consumers listen on respective queues and insert data into:
+* 
+* MySQL → if routingKey = sql_save
+* 
+* MongoDB → if routingKey = mongo_save
+* 
+* Uses app_direct as a direct exchange
+* 
+* If you're pushing to RabbitMQ before the connection is ready, producer throws "Channel not     &* * initialized" – this is handled by initializing RabbitMQ on app startup.
+
 ---
+
+## 📦 Docker Support
+### 🐇 RabbitMQ via Docker
+
+* If you don’t have RabbitMQ installed locally, you can run it easily using Docker:
+
+```bash
+docker run -d --hostname rabbit-host --name rabbitmq \
+-p 5672:5672 -p 15672:15672 \
+rabbitmq:3-management
+```
+## Ports:
+
+* 5672 → for backend service (AMQP protocol)
+
+* 15672 → for management UI: http://localhost:15672
+* Login: guest | Password: guest
+
+## 🛠 Environment Variable
+* Make sure your .env has this line:
+
+```env
+RABBITMQ_URL=amqp://localhost
+```
+* Or if you're using Docker Compose and need a service name like rabbitmq:
+
+```env
+RABBITMQ_URL=amqp://rabbitmq
+```
 
 ## ✍️ Author
 
@@ -154,10 +207,10 @@ REDIS_PORT=6379
 
 ## 📌 TODO (Upcoming)
 
-* Add RabbitMQ queueing support
 * Integrate Elasticsearch for searching
 * Rate-limiting via Redis
-
+* Health check endpoints for RabbitMQ & DBs
+* Add unit tests for producer/consumer modules
 ---
 
 ## Note
