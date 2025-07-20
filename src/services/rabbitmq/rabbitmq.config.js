@@ -1,5 +1,9 @@
 import amqplib from "amqplib";
-import { RABBITMQ_URL, RABBITMQ_EXCHANGE } from "../../config/env.js";
+import {
+  RABBITMQ_URL,
+  RABBITMQ_EXCHANGE,
+  RABBITMQ_EXCHANGE_TYPE,
+} from "../../config/env.js";
 
 let channel;
 
@@ -8,10 +12,11 @@ export const connectRabbitMq = async () => {
     const connection = await amqplib.connect(RABBITMQ_URL);
     channel = await connection.createChannel();
 
-    // creating Direct exchange
-    await channel.assertExchange(RABBITMQ_EXCHANGE, "direct", {
+    // creating Direct Exchange
+    await channel.assertExchange(RABBITMQ_EXCHANGE, RABBITMQ_EXCHANGE_TYPE, {
       durable: true,
     });
+
     console.log("✅ RabbitMQ connected & exchange asserted");
 
     return channel;
@@ -21,12 +26,7 @@ export const connectRabbitMq = async () => {
   }
 };
 
-export const getChannel = () => {
-  if (!channel) {
-    throw new Error(
-      "RabbitMQ channel not initialized. Call connectRabbitMQ() first."
-    );
-  }
-
+export const getRabbitMqChannel = () => {
+  if (!channel) throw new Error("Channel not initialized");
   return channel;
 };

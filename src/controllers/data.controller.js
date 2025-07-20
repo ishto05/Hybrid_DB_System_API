@@ -1,6 +1,8 @@
 import BlobSchema from "../models/mongo/mongo.record.js";
 import record from "../models/sql/sql.record.js";
 import redisClient from "../services/config.redis.js";
+import { ROUTING_KEYS } from "../config/rabbitmq_keys/rabbitmq.keys.js";
+import { publishToQueue } from "../services/rabbitmq/producer/producer.js";
 
 export const uploadData = async (req, res) => {
   try {
@@ -14,27 +16,45 @@ export const uploadData = async (req, res) => {
       });
     }
 
-    //separating structured data
-    if (structured) {
-      //store in sql
-      const datarecord = await record.create({ ...data, userId });
+    // Determine routing key based on structured flag for producer of rabbitMQ
 
-      return res.status(201).json({
-        status: "success",
-        message: "Structured data stored in SQL.",
-        datarecord,
-      });
-    }
-    //separating unstructured data
-    else {
-      //store in mongo
-      const blob = await BlobSchema.create({ payload: data, userId });
-      return res.status(201).json({
-        status: "success",
-        message: "Unstructured data stored in MongoDB.",
-        blob,
-      });
-    }
+    const routingKey = structured
+      ? ROUTING_KEYS.SQL_SAVE
+      : ROUTING_KEYS.MONGO_SAVE;
+
+    //preparing payload for producer
+    const payload = {
+      userId,
+      data,
+    };
+
+    await publishToQueue(routingKey, payload);
+
+    return res.status(202).json({
+      status: "accepted",
+      message: "Data queued for async processing.",
+    });
+    // //separating structured data
+    // if (structured) {
+    //   //store in sql
+    //   const datarecord = await record.create({ ...data, userId });
+
+    //   return res.status(201).json({
+    //     status: "success",
+    //     message: "Structured data stored in SQL.",
+    //     datarecord,
+    //   });
+    // }
+    // //separating unstructured data
+    // else {
+    //   //store in mongo
+    //   const blob = await BlobSchema.create({ payload: data, userId });
+    //   return res.status(201).json({
+    //     status: "success",
+    //     message: "Unstructured data stored in MongoDB.",
+    //     blob,
+    //   });
+    // }
   } catch (error) {
     console.error("Upload Error:", error);
     return res.status(500).json({

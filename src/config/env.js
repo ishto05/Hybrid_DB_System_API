@@ -9,8 +9,9 @@ export const {
 
   JWT_SECRET,
   JWT_EXPIRY,
-  RABBITMQ_URL,
   RABBITMQ_EXCHANGE,
+  RABBITMQ_EXCHANGE_TYPE,
+  RABBITMQ_URL,
 } = process.env;
 
 export const SQL = {
