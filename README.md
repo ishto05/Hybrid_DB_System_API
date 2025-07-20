@@ -1,6 +1,6 @@
 ## Hybrid Database System API
 
-A powerful Express.js-based API that smartly separates and manages structured and unstructured data using SQL (MySQL via Sequelize) and NoSQL (MongoDB via Mongoose). It supports JWT authentication, Redis caching, and is designed for future enhancements like RabbitMQ queueing and Elasticsearch search optimization.
+A powerful Express.js-based API that smartly separates and manages structured and unstructured data using SQL (MySQL via Sequelize) and NoSQL (MongoDB via Mongoose). It supports JWT authentication, Redis caching, and uses RabbitMQ (via Docker) for queue-based async processing. Elasticsearch integration is planned for future search optimization.
 
 ---
 
@@ -13,13 +13,12 @@ A powerful Express.js-based API that smartly separates and manages structured an
 
   * Structured data (e.g., finance records) → MySQL (via Sequelize)
   * Unstructured data (e.g., logs, feedback) → MongoDB (via Mongoose)
-
 * **Redis**: Cache frequently accessed data
-
 * **RabbitMQ Integration**:
+
   * Asynchronously offload data processing to queues
-  * Consumer/producer architecture with routing keys
-  * Direct exchange support
+  * Producer/Consumer architecture with routing keys
+  * Direct exchange setup (via Docker)
 
 ### 🧠 Additional Features (Planned)
 
@@ -33,10 +32,9 @@ A powerful Express.js-based API that smartly separates and manages structured an
 **Structured DB**: MySQL + Sequelize
 **Unstructured DB**: MongoDB + Mongoose
 **Auth**: JWT (access & refresh tokens)
-**Queueing**: RabbitMQ (Direct Exchange with routing keys, Setup by DOCKER)
+**Queueing**: RabbitMQ (via Docker) with direct exchange & routing keys
 **Caching**: Redis (ioredis)
 **Search (Planned)**: Elasticsearch
-
 
 ---
 
@@ -51,10 +49,13 @@ Hybrid-system-API/
 ├── node_modules/
 ├── package-lock.json
 ├── package.json
+├── README.md
 ├── src/
 │   ├── app.js
 │   ├── config/
-│   │   └── env.js
+│   │   ├── env.js
+│   │   └── rabbitmq_keys/
+│   │       └── rabbitmq.keys.js
 │   ├── controllers/
 │   │   ├── data.controller.js
 │   │   └── user.controller.js
@@ -69,12 +70,19 @@ Hybrid-system-API/
 │   │   └── sql/
 │   │       ├── sql.record.js
 │   │       └── sql.user.js
-│   ├── redis/
-│   │   └── config.redis.js
 │   ├── routes/
 │   │   ├── data.routes.js
-│   │
-
+│   │   └── user.auth.route.js
+│   ├── services/
+│   │   ├── config.redis.js
+│   │   └── rabbitmq/
+│   │       ├── rabbitmq.config.js
+│   │       ├── consumer/
+│   │       │   ├── consumer.js
+│   │       │   ├── mongo.consumer.js
+│   │       │   └── sql.consumer.js
+│   │       └── producer/
+│
 ```
 
 ---
@@ -106,7 +114,7 @@ RABBITMQ_EXCHANGE_TYPE=direct
 
 ---
 
-## 🧪 Testing Dummy Data
+## 🧚️ Testing Dummy Data
 
 * Structured:
 
@@ -144,7 +152,7 @@ RABBITMQ_EXCHANGE_TYPE=direct
 * On register/login, generate `accessToken` + `refreshToken`
 * `userId` is shared across both databases for per-user data ownership
 
-### ⚡ Redis Caching (Next Step)
+### ⚡ Redis Caching 
 
 * Frequently accessed user records (like `/data`) can be cached with keys like:
 
@@ -153,55 +161,52 @@ RABBITMQ_EXCHANGE_TYPE=direct
   ```
 
 ### ⚙️ RabbitMQ Flow
-* Producer sends data using publishToQueue(routingKey, payload)
 
-* routingKey determines where the data goes (sql_save or mongo_save)
-* 
-* Consumers listen on respective queues and insert data into:
-* 
-* MySQL → if routingKey = sql_save
-* 
-* MongoDB → if routingKey = mongo_save
-* 
-* Uses app_direct as a direct exchange
-* 
-* If you're pushing to RabbitMQ before the connection is ready, producer throws "Channel not     &* * initialized" – this is handled by initializing RabbitMQ on app startup.
+* `publishToQueue(routingKey, payload)` sends data to queue
+* `routingKey` decides the queue target: `sql_save` or `mongo_save`
+* Consumers are bound to these keys and insert data into:
+
+  * MySQL → if `routingKey = sql_save`
+  * MongoDB → if `routingKey = mongo_save`
+* Exchange used: `app_direct` (direct)
+* Producer throws `Channel not initialized` error if RabbitMQ isn't connected; handled by initializing RabbitMQ at app startup
 
 ---
 
 ## 📦 Docker Support
+
 ### 🐇 RabbitMQ via Docker
 
-* If you don’t have RabbitMQ installed locally, you can run it easily using Docker:
+Run RabbitMQ locally via Docker:
 
 ```bash
 docker run -d --hostname rabbit-host --name rabbitmq \
--p 5672:5672 -p 15672:15672 \
-rabbitmq:3-management
+  -p 5672:5672 -p 15672:15672 \
+  rabbitmq:3-management
 ```
-## Ports:
 
-* 5672 → for backend service (AMQP protocol)
+### 📂 Ports:
 
-* 15672 → for management UI: http://localhost:15672
-* Login: guest | Password: guest
+* `5672` → for backend service (AMQP)
+* `15672` → management UI: [http://localhost:15672](http://localhost:15672) (Login: guest / guest)
 
-## 🛠 Environment Variable
-* Make sure your .env has this line:
+### ⚙️ Env Var:
 
 ```env
 RABBITMQ_URL=amqp://localhost
 ```
-* Or if you're using Docker Compose and need a service name like rabbitmq:
+
+Or if using Docker Compose:
 
 ```env
 RABBITMQ_URL=amqp://rabbitmq
 ```
 
+---
+
 ## ✍️ Author
 
 * Author: ishto05
-
 
 ---
 
@@ -211,9 +216,11 @@ RABBITMQ_URL=amqp://rabbitmq
 * Rate-limiting via Redis
 * Health check endpoints for RabbitMQ & DBs
 * Add unit tests for producer/consumer modules
+
 ---
 
-## Note
-* Feedback on this project is highly appreciated as I strive for industry-level quality.
+## ✨ Note
+
+Feedback on this project is highly appreciated as I strive for industry-level quality.
 
 [MIT](LICENSE)
