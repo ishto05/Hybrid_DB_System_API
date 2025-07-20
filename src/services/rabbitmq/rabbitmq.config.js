@@ -12,27 +12,21 @@ export const connectRabbitMq = async () => {
     await channel.assertExchange(RABBITMQ_EXCHANGE, "direct", {
       durable: true,
     });
-    console.log("--------------------------------------------------\n");
     console.log("✅ RabbitMQ connected & exchange asserted");
-    console.log("--------------------------------------------------\n");
 
     return channel;
   } catch (error) {
-    console.log("--------------------------------------------------\n");
     console.error("❌ RabbitMQ connection error:", error);
-    console.log("--------------------------------------------------\n");
     throw error;
   }
 };
 
 export const getChannel = () => {
-  console.log("--------------------------------------------------\n");
   if (!channel) {
     throw new Error(
       "RabbitMQ channel not initialized. Call connectRabbitMQ() first."
     );
   }
-  console.log("--------------------------------------------------\n");
 
   return channel;
 };

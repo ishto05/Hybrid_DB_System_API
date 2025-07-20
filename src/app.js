@@ -15,11 +15,13 @@ app.use("/api/v1/auth", userAuthRoute);
 
 const startServer = async () => {
   try {
+    console.log("--------------------------------------------------\n");
     await connectRabbitMq();
 
     await connectDB();
 
     sequelize.sync();
+    console.log("--------------------------------------------------\n");
 
     await redisClient.ping();
 
