@@ -1,6 +1,6 @@
 import BlobSchema from "../models/mongo/mongo.record.js";
 import record from "../models/sql/sql.record.js";
-import redisClient from "../redis/config.redis.js";
+import redisClient from "../services/config.redis.js";
 
 export const uploadData = async (req, res) => {
   try {

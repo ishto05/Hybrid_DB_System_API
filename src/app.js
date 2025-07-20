@@ -4,7 +4,8 @@ import connectDB from "./database/mongodb.config.js";
 import sequelize from "./database/sqldb.config.js";
 import testRouter from "./routes/data.routes.js";
 import userAuthRoute from "./routes/user.auth.route.js";
-import redisClient from "./redis/config.redis.js";
+import redisClient from "./services/config.redis.js";
+import { connectRabbitMq } from "./services/rabbitmq/rabbitmq.config.js";
 
 const app = express();
 app.use(express.json());
@@ -14,6 +15,8 @@ app.use("/api/v1/auth", userAuthRoute);
 
 const startServer = async () => {
   try {
+    await connectRabbitMq();
+
     await connectDB();
 
     sequelize.sync();

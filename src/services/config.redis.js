@@ -10,14 +10,20 @@ const redisClient = new Redis({
 });
 try {
   redisClient.on("connect", () => {
+    console.log("--------------------------------------------------\n")
     console.log("✅ Redis Connected");
+    console.log("--------------------------------------------------\n")
   });
 
   redisClient.on("error", (error) => {
+    console.log("--------------------------------------------------\n")
     console.error("❌ Redis Connection Failed:", error);
+    console.log("--------------------------------------------------\n")
   });
 } catch (err) {
+  console.log("--------------------------------------------------\n")
   console.error("❌ Redis setup failed hard:", err);
+  console.log("--------------------------------------------------\n")
 }
 
 export default redisClient;
