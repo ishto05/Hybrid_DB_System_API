@@ -28,13 +28,23 @@ A powerful Express.js-based API that smartly separates and manages structured an
 
 ## 🏗 Tech Stack
 
-**Backend**: Node.js, Express.js
-**Structured DB**: MySQL + Sequelize
-**Unstructured DB**: MongoDB + Mongoose
-**Auth**: JWT (access & refresh tokens)
-**Queueing**: RabbitMQ (via Docker) with direct exchange & routing keys
-**Caching**: Redis (ioredis)
-**Search (Planned)**: Elasticsearch
+Backend: Node.js, Express.js
+
+Authentication: JWT (access & refresh tokens)
+
+Structured Database: MySQL with Sequelize ORM
+
+Unstructured Database: MongoDB with Mongoose ODM
+
+Caching: Redis (via ioredis)
+
+Queueing System: RabbitMQ (Dockerized)
+
+Direct exchange with routing keys (sql_save, mongo_save)
+
+Search Engine (Planned): Elasticsearch
+
+
 
 ---
 
