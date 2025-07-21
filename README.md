@@ -121,6 +121,37 @@ RABBITMQ_URL=amqp://localhost
 RABBITMQ_EXCHANGE=app_direct
 RABBITMQ_EXCHANGE_TYPE=direct
 ```
+---
+
+## 📦 Docker Support
+
+### 🐇 RabbitMQ via Docker
+
+Run RabbitMQ locally via Docker:
+
+```bash
+docker run -d --hostname rabbit-host --name rabbitmq \
+  -p 5672:5672 -p 15672:15672 \
+  rabbitmq:3-management
+
+```
+
+### 📂 Ports:
+
+* `5672` → for backend service (AMQP)
+* `15672` → management UI: [http://localhost:15672](http://localhost:15672) (Login: guest / guest)
+
+### ⚙️ Env Var:
+
+```env
+RABBITMQ_URL=amqp://localhost
+```
+
+Or if using Docker Compose:
+
+```env
+RABBITMQ_URL=amqp://rabbitmq
+```
 
 ---
 
@@ -183,36 +214,6 @@ RABBITMQ_EXCHANGE_TYPE=direct
 
 ---
 
-## 📦 Docker Support
-
-### 🐇 RabbitMQ via Docker
-
-Run RabbitMQ locally via Docker:
-
-```bash
-docker run -d --hostname rabbit-host --name rabbitmq \
-  -p 5672:5672 -p 15672:15672 \
-  rabbitmq:3-management
-```
-
-### 📂 Ports:
-
-* `5672` → for backend service (AMQP)
-* `15672` → management UI: [http://localhost:15672](http://localhost:15672) (Login: guest / guest)
-
-### ⚙️ Env Var:
-
-```env
-RABBITMQ_URL=amqp://localhost
-```
-
-Or if using Docker Compose:
-
-```env
-RABBITMQ_URL=amqp://rabbitmq
-```
-
----
 
 ## ✍️ Author
 
